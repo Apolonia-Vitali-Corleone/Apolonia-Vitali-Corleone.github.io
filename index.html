@@ -63,9 +63,11 @@
 </div>
 
 <script>
-    const username = 'apolonia-vitali-corleone';
-    const repo = 'apolonia-vitali-corleone.github.io';
-    const baseUrl = `https://${username}.github.io/${repo}/`;
+    const username = 'Apolonia-Vitali-Corleone';
+    const repo = 'Apolonia-Vitali-Corleone.github.io';
+
+    // Use the correct URL format for viewing files on GitHub
+    const baseFileUrl = `https://github.com/${username}/${repo}/blob/main/`;
 
     // 递归获取目录内容
     async function fetchDirectoryContents(path = '') {
@@ -108,9 +110,10 @@
 
                 const link = document.createElement('a');
                 link.textContent = ` ${file.name}`;
-                link.href = ""
-                link.href += `${baseUrl}${file.path}`;
-                console.log(link.href)
+
+                // Use the corrected URL format
+                link.href = `${baseFileUrl}${file.path}`;
+                console.log(file.path);
                 link.target = '_blank'; // 确保在新标签页打开
 
                 fileItem.appendChild(link);
