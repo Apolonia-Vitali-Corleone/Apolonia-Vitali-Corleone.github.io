@@ -8,25 +8,26 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             line-height: 1.6;
-            color: #24292e;
+            color: #d1d5da; /* 浅灰色文本 */
+            background-color: #0d1117; /* 黑色背景 */
             max-width: 900px;
             margin: 0 auto;
             padding: 20px;
         }
         h1 {
-            border-bottom: 1px solid #eaecef;
+            border-bottom: 1px solid #30363d;
             padding-bottom: 10px;
         }
         h2 {
             margin-top: 24px;
             margin-bottom: 16px;
             font-weight: 600;
-            border-bottom: 1px solid #eaecef;
+            border-bottom: 1px solid #30363d;
             padding-bottom: 5px;
         }
         .directory {
             margin-left: 20px;
-            border-left: 1px solid #e1e4e8;
+            border-left: 1px solid #30363d;
             padding-left: 10px;
         }
         .file {
@@ -41,7 +42,7 @@
         }
         .file-item a {
             text-decoration: none;
-            color: #0366d6;
+            color: #58a6ff;
         }
         .file-item a:hover {
             text-decoration: underline;
@@ -49,13 +50,13 @@
         .loading {
             margin: 20px 0;
             font-style: italic;
-            color: #6a737d;
+            color: #8b949e;
         }
     </style>
 </head>
 <body>
 <h1>Apolonia-Vitali-Corleone's Articles</h1>
-<p>Welcome to my GitHub Pages site. Below you'll find all directories and articles in this repository.</p>
+<p>Welcome to my GitHub Pages site. Below you'll find all directories and files in this repository.</p>
 
 <div id="repo-content">
     <div class="loading">Loading repository contents...</div>
@@ -72,7 +73,7 @@
             const response = await fetch(`https://raw.githubusercontent.com/${username}/${repo}/main/${path}`);
             if (!response.ok) {
                 console.error(`Error fetching file ${path}: HTTP status ${response.status}`);
-                return path.split('/').pop().replace(/\.(md|html)$/, '');
+                return path.split('/').pop();
             }
             const text = await response.text();
 
@@ -84,10 +85,10 @@
 
             // 如果没有找到标题，返回文件名
             const fileName = path.split('/').pop();
-            return fileName.replace(/\.(md|html)$/, '');
+            return fileName;
         } catch (error) {
             console.error(`Error fetching file ${path}:`, error);
-            return path.split('/').pop().replace(/\.(md|html)$/, '');
+            return path.split('/').pop();
         }
     }
 
@@ -110,9 +111,7 @@
 
             // 分离目录和文件
             const directories = data.filter(item => item.type === 'dir');
-            const files = data.filter(item => item.type === 'file' &&
-                (item.name.endsWith('.md') || item.name.endsWith('.html')) &&
-                item.name !== 'index.md' && item.name !== 'index.html');
+            const files = data.filter(item => item.type === 'file');
 
             // 先处理目录
             for (const dir of directories) {
@@ -143,6 +142,7 @@
                 const title = await getFileTitle(file.path);
                 link.textContent = ` ${title}`;
                 link.href = `${baseUrl}${file.path}`; // 使用完整的GitHub Pages URL
+                link.target = '_blank'; // 在新标签页中打开
 
                 fileItem.appendChild(link);
                 container.appendChild(fileItem);
