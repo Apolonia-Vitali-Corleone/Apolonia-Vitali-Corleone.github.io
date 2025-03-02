@@ -8,8 +8,8 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
             line-height: 1.6;
-            color: #d1d5da; /* 浅灰色文本 */
-            background-color: #0d1117; /* 黑色背景 */
+            color: #d1d5da;
+            background-color: #0d1117;
             max-width: 900px;
             margin: 0 auto;
             padding: 20px;
@@ -63,34 +63,9 @@
 </div>
 
 <script>
-    const username = 'apolonia-vitali-corleone'; // 替换为你的GitHub用户名
-    const repo = 'apolonia-vitali-corleone.github.io'; // 替换为你的仓库名
-    const baseUrl = `https://${username}.github.io/${repo}/`; // GitHub Pages的基本URL
-
-    // 获取文件标题的函数（从markdown文件)
-    async function getFileTitle(path) {
-        try {
-            const response = await fetch(`https://raw.githubusercontent.com/${username}/${repo}/main/${path}`);
-            if (!response.ok) {
-                console.error(`Error fetching file ${path}: HTTP status ${response.status}`);
-                return path.split('/').pop();
-            }
-            const text = await response.text();
-
-            // 尝试从markdown中提取标题
-            const titleMatch = text.match(/^#\s+(.+)$/m) || text.match(/^title:\s*(.+)$/m);
-            if (titleMatch && titleMatch[1]) {
-                return titleMatch[1].trim();
-            }
-
-            // 如果没有找到标题，返回文件名
-            const fileName = path.split('/').pop();
-            return fileName;
-        } catch (error) {
-            console.error(`Error fetching file ${path}:`, error);
-            return path.split('/').pop();
-        }
-    }
+    const username = 'apolonia-vitali-corleone';
+    const repo = 'apolonia-vitali-corleone.github.io';
+    const baseUrl = `https://${username}.github.io/${repo}/`;
 
     // 递归获取目录内容
     async function fetchDirectoryContents(path = '') {
@@ -105,26 +80,21 @@
 
             const data = await response.json();
 
-            // 创建目录容器
             const container = document.createElement('div');
             container.className = 'directory';
 
-            // 分离目录和文件
             const directories = data.filter(item => item.type === 'dir');
             const files = data.filter(item => item.type === 'file');
 
-            // 先处理目录
             for (const dir of directories) {
                 const dirItem = document.createElement('div');
                 dirItem.className = 'dir-item';
                 dirItem.textContent = ` ${dir.name}`;
                 container.appendChild(dirItem);
 
-                // 递归获取子目录内容
                 const subContainer = await fetchDirectoryContents(dir.path);
-                subContainer.style.display = 'none'; // 初始隐藏子目录
+                subContainer.style.display = 'none';
 
-                // 点击目录名展开/折叠子目录
                 dirItem.addEventListener('click', () => {
                     subContainer.style.display = subContainer.style.display === 'none' ? 'block' : 'none';
                 });
@@ -132,17 +102,14 @@
                 container.appendChild(subContainer);
             }
 
-            // 然后处理文件
             for (const file of files) {
                 const fileItem = document.createElement('div');
                 fileItem.className = 'file-item';
 
                 const link = document.createElement('a');
-                // 获取文件标题
-                const title = await getFileTitle(file.path);
-                link.textContent = ` ${title}`;
-                link.href = `${baseUrl}${file.path}`; // 使用完整的GitHub Pages URL
-                link.target = '_blank'; // 在新标签页中打开
+                link.textContent = ` ${file.name}`;
+                link.href = `${baseUrl}${file.path}`;
+                link.target = '_blank'; // 确保在新标签页打开
 
                 fileItem.appendChild(link);
                 container.appendChild(fileItem);
@@ -157,16 +124,14 @@
         }
     }
 
-    // 初始化页面
     async function init() {
         const repoContent = document.getElementById('repo-content');
-        repoContent.innerHTML = ''; // 清除加载信息
+        repoContent.innerHTML = '';
 
         const content = await fetchDirectoryContents();
         repoContent.appendChild(content);
     }
 
-    // 页面加载完成后执行初始化
     document.addEventListener('DOMContentLoaded', init);
 </script>
 </body>
