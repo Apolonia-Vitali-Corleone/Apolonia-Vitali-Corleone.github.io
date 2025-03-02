@@ -71,65 +71,69 @@
     const baseFileUrl = `https://github.com/${username}/${repo}/blob/main/`;
 
     // 递归获取目录内容
-    async function fetchDirectoryContents(path = '') {
-        try {
-            const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
-            const response = await fetch(apiUrl);
+// 递归获取目录内容
+async function fetchDirectoryContents(path = '') {
+    try {
+        const apiUrl = `https://api.github.com/repos/${username}/${repo}/contents/${path}`;
+        const response = await fetch(apiUrl);
 
-            if (!response.ok) {
-                console.error(`HTTP error! status: ${response.status}, path: ${path}`);
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
-
-            const container = document.createElement('div');
-            container.className = 'directory';
-
-            const directories = data.filter(item => item.type === 'dir');
-            const files = data.filter(item => item.type === 'file');
-
-            for (const dir of directories) {
-                const dirItem = document.createElement('div');
-                dirItem.className = 'dir-item';
-                dirItem.textContent = ` ${dir.name}`;
-                container.appendChild(dirItem);
-
-                const subContainer = await fetchDirectoryContents(dir.path);
-                subContainer.style.display = 'none';
-
-                dirItem.addEventListener('click', () => {
-                    subContainer.style.display = subContainer.style.display === 'none' ? 'block' : 'none';
-                });
-
-                container.appendChild(subContainer);
-            }
-
-            for (const file of files) {
-                const fileItem = document.createElement('div');
-                fileItem.className = 'file-item';
-
-                const link = document.createElement('a');
-                link.textContent = ` ${file.name}`;
-
-                // Use the corrected URL format
-                link.href = `${baseFileUrl}${file.path}`;
-                console.log(file.path);
-                console.log(link.href);
-                link.target = '_blank'; // 确保在新标签页打开
-
-                fileItem.appendChild(link);
-                container.appendChild(fileItem);
-            }
-
-            return container;
-        } catch (error) {
-            console.error('Error fetching repository contents:', error);
-            const errorElement = document.createElement('div');
-            errorElement.textContent = `Error loading content: ${error.message}`;
-            return errorElement;
+        if (!response.ok) {
+            console.error(`HTTP error! status: ${response.status}, path: ${path}`);
+            throw new Error(`HTTP error! status: ${response.status}`);
         }
+
+        const data = await response.json();
+
+        const container = document.createElement('div');
+        container.className = 'directory';
+
+        const directories = data.filter(item => 
+            item.type === 'dir' && !item.name.endsWith('.assets')
+        );
+        const files = data.filter(item => 
+            item.type === 'file' && 
+            !item.name.match(/\.(png|jpg|jpeg|gif|svg)$/i) &&  // 过滤图片类型
+            item.name.toLowerCase() !== 'index'  // 过滤 index 文件
+        );
+
+        for (const dir of directories) {
+            const dirItem = document.createElement('div');
+            dirItem.className = 'dir-item';
+            dirItem.textContent = ` ${dir.name}`;
+            container.appendChild(dirItem);
+
+            const subContainer = await fetchDirectoryContents(dir.path);
+            subContainer.style.display = 'none';
+
+            dirItem.addEventListener('click', () => {
+                subContainer.style.display = subContainer.style.display === 'none' ? 'block' : 'none';
+            });
+
+            container.appendChild(subContainer);
+        }
+
+        for (const file of files) {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'file-item';
+
+            const link = document.createElement('a');
+            link.textContent = ` ${file.name}`;
+            link.href = `${baseFileUrl}${file.path}`;
+            link.target = '_blank'; // 确保在新标签页打开
+
+            fileItem.appendChild(link);
+            container.appendChild(fileItem);
+        }
+
+        return container;
+    } catch (error) {
+        console.error('Error fetching repository contents:', error);
+        const errorElement = document.createElement('div');
+        errorElement.textContent = `Error loading content: ${error.message}`;
+        return errorElement;
     }
+}
+
 
     async function init() {
         const repoContent = document.getElementById('repo-content');
