@@ -108,7 +108,8 @@
 
                 const link = document.createElement('a');
                 link.textContent = ` ${file.name}`;
-                link.href = `${baseUrl}${file.path}`;
+                link.href = ""
+                link.href += `${baseUrl}${file.path}`;
                 console.log(link.href)
                 link.target = '_blank'; // 确保在新标签页打开
 
